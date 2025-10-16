@@ -2,8 +2,11 @@
 
 use Livewire\Volt\Volt;
 
+<<<<<<< HEAD
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
+=======
+>>>>>>> ae2dd6d (Initialize project repository)
 test('registration screen can be rendered', function () {
     $response = $this->get(route('register'));
 

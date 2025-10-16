@@ -12,7 +12,11 @@
 */
 
 pest()->extend(Tests\TestCase::class)
+<<<<<<< HEAD
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+=======
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+>>>>>>> ae2dd6d (Initialize project repository)
     ->in('Feature');
 
 /*

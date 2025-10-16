@@ -3,8 +3,11 @@
 use App\Models\User;
 use Livewire\Volt\Volt;
 
+<<<<<<< HEAD
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
+=======
+>>>>>>> ae2dd6d (Initialize project repository)
 test('profile page is displayed', function () {
     $this->actingAs($user = User::factory()->create());
 
