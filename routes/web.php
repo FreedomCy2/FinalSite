@@ -134,6 +134,11 @@ Route::prefix('admin')->group(function () {
     // Optional routes
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('admin.register');
     Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('admin.password.request');
+
+    // Booking management (AJAX-friendly endpoints)
+    Route::get('/bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('admin.bookings.index');
+    Route::post('/bookings', [\App\Http\Controllers\Admin\BookingController::class, 'store'])->name('admin.bookings.store');
+    Route::delete('/bookings/{id}', [\App\Http\Controllers\Admin\BookingController::class, 'destroy'])->name('admin.bookings.destroy');
 });
 
 // ------------------

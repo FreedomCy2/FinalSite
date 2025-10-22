@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>
+    <!-- CSRF token for AJAX -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         .sidebar-item:hover .sidebar-icon {
             transform: translateX(5px);
@@ -231,10 +233,10 @@
                                     <div class="flex-shrink-0 h-10 w-10">
                                         <img class="h-10 w-10 rounded-full" src="http://static.photos/people/200x200/2" alt="">
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">John Smith</div>
-                                        <div class="text-sm text-gray-500">john@example.com</div>
-                                    </div>
+                                                        <div class="ml-4">
+                                                            <div class="text-sm font-medium text-gray-900">John Smith</div>
+                                                            <div class="text-sm text-gray-500">john@example.com</div>
+                                                        </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -354,35 +356,25 @@
                 <div class="grid grid-cols-1 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Patient</label>
-                        <select class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
-                            <option value="">Select Patient</option>
-                            <option value="1">John Smith</option>
-                            <option value="2">Emma Wilson</option>
-                            <option value="3">Robert Brown</option>
-                        </select>
+                        <input id="patient_name" name="patient_name" type="text" placeholder="Patient name" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
-                        <select class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
-                            <option value="">Select Doctor</option>
-                            <option value="1">Dr. Sarah Johnson - Cardiology</option>
-                            <option value="2">Dr. Michael Chen - Dermatology</option>
-                            <option value="3">Dr. Emily Wong - Pediatrics</option>
-                        </select>
+                        <input id="doctor_name" name="doctor_name" type="text" placeholder="Doctor name" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input type="date" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
+                            <input id="appointment_date" name="appointment_date" type="date" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
-                            <input type="time" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
+                            <input id="appointment_time" name="appointment_time" type="time" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
+                        <select id="status" name="status" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent">
                             <option value="pending">Pending</option>
                             <option value="confirmed">Confirmed</option>
                             <option value="cancelled">Cancelled</option>
@@ -391,7 +383,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
-                        <textarea rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent"></textarea>
+                        <textarea id="notes" name="notes" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#68D6EC] focus:border-transparent"></textarea>
                     </div>
                 </div>
                 <div class="flex justify-end mt-6 space-x-3">
@@ -442,13 +434,34 @@
                 });
             });
 
-            // Delete booking confirmation
+            // Delete booking (AJAX) - assumes delete buttons include data-id attribute
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    if (confirm('Are you sure you want to delete this booking?')) {
-                        // In a real app, you would send a delete request to the server here
-                        alert('Booking deleted successfully!');
+                    const id = this.dataset.id;
+                    if (! id) {
+                        return alert('Missing booking id');
                     }
+
+                    if (! confirm('Are you sure you want to delete this booking?')) return;
+
+                    fetch(`/admin/bookings/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                        }
+                    }).then(res => {
+                        if (! res.ok) throw res;
+                        return res.json();
+                    }).then(json => {
+                        alert(json.message || 'Deleted');
+                        // Optionally remove the row from the table
+                        this.closest('tr').remove();
+                    }).catch(async err => {
+                        let msg = 'Failed to delete';
+                        try { const j = await err.json(); msg = j.message || msg; } catch(e){}
+                        alert(msg);
+                    });
                 });
             });
 
@@ -467,12 +480,46 @@
                 }
             });
 
-            // Form submission
+            // Form submission (AJAX create)
             document.getElementById('bookingForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                // In a real app, you would send the form data to the server here
-                alert('Booking saved successfully!');
-                closeModalFunc();
+
+                const payload = {
+                    patient_name: document.getElementById('patient_name').value,
+                    doctor_name: document.getElementById('doctor_name').value,
+                    appointment_date: document.getElementById('appointment_date').value,
+                    appointment_time: document.getElementById('appointment_time').value,
+                    status: document.getElementById('status').value,
+                };
+
+                fetch('/admin/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                }).then(async res => {
+                    if (res.status === 422) {
+                        const j = await res.json();
+                        let errors = j.errors || {}; 
+                        let msgs = Object.values(errors).flat().join('\n');
+                        return alert(msgs || j.message || 'Validation failed');
+                    }
+
+                    if (! res.ok) throw res;
+                    return res.json();
+                }).then(json => {
+                    alert(json.message || 'Booking created');
+                    closeModalFunc();
+                    // Optionally prepend the new booking to the table or reload
+                    location.reload();
+                }).catch(async err => {
+                    let msg = 'Failed to save booking';
+                    try { const j = await err.json(); msg = j.message || msg; } catch(e){}
+                    alert(msg);
+                });
             });
         });
     </script>
