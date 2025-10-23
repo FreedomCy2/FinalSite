@@ -61,13 +61,18 @@
         <div class="max-w-4xl mx-auto login-container">
             <div class="flex flex-col md:flex-row">
                 <!-- Left Side - Branding -->
-                <div class="md:w-1/2 login-left text-white p-10 flex flex-col justify-center">
-                    <div class="mb-8">
-                        <div class="flex items-center mb-6">
-                            <i data-feather="activity" class="mr-3 text-white text-3xl"></i>
-                            <h1 class="text-3xl font-bold">Clinic Flow</h1>
+                <div class="md:w-1/2 login-left text-white p-10 flex flex-col justify-center relative">
+                    <!-- Back button positioned at top-left of the left panel -->
+                    <a href="{{ url('/') }}" class="absolute left-4 top-4 p-2 rounded-full bg-white bg-opacity-10 hover:bg-opacity-20 text-white z-20" title="Back to welcome">
+                        <i data-feather="arrow-left" class="text-white"></i>
+                    </a>
+                    <div class="mb-8 text-center">
+                        <!-- logo and title inline and nudged slightly left -->
+                        <div class="flex items-center justify-center mb-4 space-x-3 transform -translate-x-2">
+                            <i data-feather="activity" class="text-white text-4xl"></i>
+                            <h1 class="text-3xl font-bold mb-0">Clinic Flow</h1>
                         </div>
-                        <p class="text-lg opacity-90">Streamline your clinic management with our comprehensive solution.</p>
+                        <p class="text-lg opacity-90 max-w-xs mx-auto mt-2">Streamline your clinic management with our comprehensive solution.</p>
                     </div>
                     
                     <div class="mt-8">
@@ -201,6 +206,12 @@
                 </div>
             </div>
         </div>
+        <div class="mt-6 text-center">
+            <p class="text-xs text-gray-400">
+                © 2025 Clinic ClinicFlow. All rights reserved.
+            </p>
+        </div>
+    </div>        
     </div>
 
     <script>
@@ -216,5 +227,7 @@
             });
         @endif
     </script>
+
+    
 </body>
 </html>

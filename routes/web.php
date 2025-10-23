@@ -129,7 +129,46 @@ Route::post('logout', function (Request $request) {
 })->name('logout');
 
 // ------------------
-// User Pages (unchanged)
+// Doctor Pages (unchanged)
+// ------------------
+Route::get('/doctor/login', function () {
+    return view('doctor.login');
+})->name('doctor.login');
+
+Route::get('/doctor/register', function () {
+    return view('doctor.register');
+})->name('doctor.register');
+
+Route::get('/doctor/forgot-password', function () {
+    return view('doctor.forgot-password');
+})->name('doctor.forgot-password');
+
+Route::get('/doctor/dashboard', function () {
+    return view('doctor.dashboard');
+})->name('doctor.dashboard');
+
+Route::get('/doctor/appointments', function () {
+    return view('doctor.appointments');
+})->name('doctor.appointments');
+
+Route::get('/doctor/availability', function () {
+    return view('doctor.availability');
+})->name('doctor.availability');
+
+Route::get('/doctor/profile', function () {
+    return view('doctor.profile');
+})->name('doctor.profile');
+
+Route::get('/doctor/notifications', function () {
+    return view('doctor.notifications');
+})->name('doctor.notifications');
+
+Route::get('/doctor/introduction', function () {
+    return view('doctor.introduction');
+})->name('doctor.introduction');
+
+// ------------------
+// User Pages
 // ------------------
 Route::get('/user/login', function () {
     return view('user.login');
@@ -158,25 +197,6 @@ Route::get('/information', function () {
 Route::get('/information', [UserBookingController::class, 'create'])->name('user.information.form');
 Route::post('/information', [UserBookingController::class, 'store'])->name('user.information');
 
-Route::get('/login', function () {
-    return view('user.login');
-})->name('user.login');
-
-// ------------------
-// Doctor Pages (unchanged)
-// ------------------
-Route::get('/doctor/login', function () {
-    return view('doctor.login');
-})->name('doctor.login');
-
-Route::get('/doctor/register', function () {
-    return view('doctor.register');
-})->name('doctor.register');
-
-Route::get('/doctor/introduction', function () {
-    return view('doctor.introduction');
-})->name('doctor.introduction');
-
 // ------------------
 // Custom Registration & Login (unchanged)
 // ------------------
@@ -185,7 +205,7 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/login', [RegisterController::class, 'showLoginForm'])->name('login');
 
 // ------------------
-// Dashboard Views (unchanged, extra login check not needed for user dashboard)
+// Dashboard Views (unchanged)
 // ------------------
 Route::view('/dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -216,4 +236,4 @@ Route::middleware(['auth'])->group(function () {
 // ------------------
 // Auth Scaffolding
 // ------------------
-require __DIR__ . '/auth.php';
+require _DIR_ . '/auth.php';
