@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\SupportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\UserBookingController;
 
 // ------------------
 // Home Route
@@ -141,6 +142,25 @@ Route::get('/user/register', function () {
 Route::get('/user/introduction', function () {
     return view('user.introduction');
 })->name('user.introduction');
+
+Route::get('/user/booking', function () {
+    return view('user.booking');
+})->name('user.booking');
+
+Route::get('/user/service', function () {
+    return view('user.service');
+})->name('user.service');
+
+Route::get('/information', function () {
+    return view('user.information');
+})->name('user.information');
+
+Route::get('/information', [UserBookingController::class, 'create'])->name('user.information.form');
+Route::post('/information', [UserBookingController::class, 'store'])->name('user.information');
+
+Route::get('/login', function () {
+    return view('user.login');
+})->name('user.login');
 
 // ------------------
 // Doctor Pages (unchanged)

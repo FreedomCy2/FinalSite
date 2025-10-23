@@ -1,29 +1,38 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Models\UserBooking;
 
-class Booking extends Model
+class UserBookingController extends Controller
 {
-    protected $fillable = [
-        'patient_name',
-        'doctor_name',
-        'appointment_date',
-        'appointment_time',
-        'status',
-    ];
-
-    protected $table = 'bookings';
-
-    public function getAppointmentDateAttribute($value)
+    // Show the booking form
+    public function create()
     {
-        return Carbon::parse($value)->format('Y-m-d');
-    } 
+        return view('user.information'); // your Blade file
+    }
 
-    public function getAppointmentTimeAttribute($value)
+    // Handle form submission
+    public function store(Request $request)
     {
-        return Carbon::parse($value)->format('H:i');
+        // Validate input
+        $validated = $request->validate([
+            'service' => 'required|string',
+            'date' => 'required|date',
+            'time' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'age' => 'required|integer|min:0|max:120',
+            'gender' => 'required|string',
+            'symptom' => 'nullable|string',
+        ]);
+
+        // Store in database
+        UserBooking::create($validated);
+
+        // Redirect somewhere after submission
+        return redirect()->route('user.login')->with('success', 'Booking successfully created!');
     }
 }
