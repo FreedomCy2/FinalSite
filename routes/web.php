@@ -92,6 +92,45 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::post('support/send', [SupportController::class, 'send'])->name('support.send');
 });
+// ------------------
+// Doctor Pages (unchanged)
+// ------------------
+Route::get('/doctor/login', function () {
+    return view('doctor.login');
+})->name('doctor.login');
+
+Route::get('/doctor/register', function () {
+    return view('doctor.register');
+})->name('doctor.register');
+
+Route::get('/doctor/forgot-password', function () {
+    return view('doctor.forgot-password');
+})->name('doctor.forgot-password');
+
+Route::get('/doctor/dashboard', function () {
+    return view('doctor.dashboard');
+})->name('doctor.dashboard');
+
+Route::get('/doctor/appointments', function () {
+    return view('doctor.appointments');
+})->name('doctor.appointments');
+
+Route::get('/doctor/appointments', function () {
+    return view('doctor.appointments');
+})->name('doctor.appointments');
+
+Route::get('/doctor/availability', function () {
+    return view('doctor.availability');
+})->name('doctor.availability');
+
+Route::get('/doctor/profile', function () {
+    return view('doctor.profile');
+})->name('doctor.profile');
+
+Route::get('/doctor/notifications', function () {
+    return view('doctor.notifications');
+})->name('doctor.notifications');
+
 
 // ------------------
 // Admin Authentication Routes
@@ -142,20 +181,6 @@ Route::get('/user/introduction', function () {
     return view('user.introduction');
 })->name('user.introduction');
 
-// ------------------
-// Doctor Pages (unchanged)
-// ------------------
-Route::get('/doctor/login', function () {
-    return view('doctor.login');
-})->name('doctor.login');
-
-Route::get('/doctor/register', function () {
-    return view('doctor.register');
-})->name('doctor.register');
-
-Route::get('/doctor/introduction', function () {
-    return view('doctor.introduction');
-})->name('doctor.introduction');
 
 // ------------------
 // Custom Registration & Login (unchanged)
