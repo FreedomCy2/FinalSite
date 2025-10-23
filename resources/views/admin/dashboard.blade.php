@@ -137,13 +137,11 @@
                             Settings
                         </a>
                         <div class="dropdown-divider"></div>
-                        <!-- Logout Form -->
-                        <form id="logout-form" method="POST" action="/logout">
-                            <button type="submit" class="dropdown-item text-red-600">
-                                <i data-feather="log-out" class="mr-2 w-4 h-4"></i>
-                                Logout
-                            </button>
-                        </form>
+                        <!-- Logout trigger (opens modal) -->
+                        <button id="logout-button" type="button" class="dropdown-item text-red-600">
+                            <i data-feather="log-out" class="mr-2 w-4 h-4"></i>
+                            Logout
+                        </button>
                     </div>
                 </div>
             </div>
@@ -172,24 +170,26 @@
     <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <div class="flex items-center mb-4">
-                <div class="bg-red-100 p-3 rounded-full mr-3">
-                    <i data-feather="alert-triangle" class="text-red-500"></i>
-                </div>
                 <h3 class="text-lg font-semibold">Confirm Logout</h3>
             </div>
             <p class="text-gray-600 mb-6">Are you sure you want to logout from Clinic Flow?</p>
             <div class="flex justify-end space-x-3">
-                <button id="cancel-logout" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                <button id="confirm-logout" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Logout</button>
+                <button id="cancel-logout" type="button" class="px-4 py-2 rounded bg-gray-200">Cancel</button>
+                <button id="confirm-logout" type="button" class="px-4 py-2 rounded bg-red-500 text-white">Logout</button>
             </div>
         </div>
     </div>
 
+    <!-- Hidden logout form actually submitted to server -->
+    <form id="logout-form" method="POST" action="{{ route('admin.logout') }}" class="hidden">
+        @csrf
+    </form>
+
     <script>
         feather.replace();
         
-        // Highlight current route in sidebar
         document.addEventListener('DOMContentLoaded', function() {
+            // Highlight current route in sidebar
             const currentPath = window.location.pathname.split('/').pop() || 'dashboard';
             const sidebarItems = document.querySelectorAll('.sidebar-item');
             
@@ -217,24 +217,25 @@
                 }
             });
             
-            // Logout functionality
+            const logoutButton = document.getElementById('logout-button');
             const logoutForm = document.getElementById('logout-form');
             const logoutModal = document.getElementById('logout-modal');
             const cancelLogout = document.getElementById('cancel-logout');
             const confirmLogout = document.getElementById('confirm-logout');
-            
-            logoutForm.addEventListener('submit', function(e) {
+
+            // open modal when user clicks logout
+            logoutButton && logoutButton.addEventListener('click', function(e) {
                 e.preventDefault();
                 logoutModal.classList.remove('hidden');
             });
-            
-            cancelLogout.addEventListener('click', function() {
+
+            cancelLogout && cancelLogout.addEventListener('click', function() {
                 logoutModal.classList.add('hidden');
             });
-            
-            confirmLogout.addEventListener('click', function() {
-                // Redirect to your login.blade.php file
-                window.location.href = '/admin/login';
+
+            // on confirm, submit the hidden POST logout form (includes CSRF)
+            confirmLogout && confirmLogout.addEventListener('click', function() {
+                logoutForm.submit();
             });
         });
     </script>
