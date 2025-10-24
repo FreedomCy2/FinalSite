@@ -2,17 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Doctor extends Model
+class Doctor extends Authenticatable
 {
+    use HasFactory, Notifiable;
+
     protected $table = 'doctors';
 
     protected $fillable = [
-        'doctor_name',
-        'specialization',
-        'doctor_email',
-        'doctor_phone',
-        'doctor_status',
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
     ];
 }

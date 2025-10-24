@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SupportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserBookingController;
+use App\Http\Controllers\Doctor\DoctorRegisterController;
 
 // ------------------
 // Home Route
@@ -34,7 +35,6 @@ Route::get('/admin/register', function () {
 // Admin Pages with Login Check
 // ------------------
 Route::prefix('admin')->name('admin.')->group(function () {
-
     Route::get('dashboard', function () {
         if (!Auth::check()) {
             return view('admin.login');
@@ -95,13 +95,86 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // ------------------
+// Doctor Pages (unchanged)
+// ------------------
+Route::get('/doctor/login', function () {
+    return view('doctor.login');
+})->name('doctor.login');
+
+Route::get('/doctor/register', [DoctorRegisterController::class, 'create'])->name('doctor.register');
+Route::post('/doctor/register', [DoctorRegisterController::class, 'store']);
+
+Route::get('/doctor/forgot-password', function () {
+    return view('doctor.forgot-password');
+})->name('doctor.forgot-password');
+
+Route::get('/doctor/dashboard', function () {
+    return view('doctor.dashboard');
+})->name('doctor.dashboard');
+
+Route::get('/doctor/appointments', function () {
+    return view('doctor.appointments');
+})->name('doctor.appointments');
+
+Route::get('/doctor/availability', function () {
+    return view('doctor.availability');
+})->name('doctor.availability');
+
+Route::get('/doctor/profile', function () {
+    return view('doctor.profile');
+})->name('doctor.profile');
+
+Route::get('/doctor/notifications', function () {
+    return view('doctor.notifications');
+})->name('doctor.notifications');
+
+// ------------------
+// User Pages (unchanged)
+// ------------------
+
+Route::get('/user/login', function () {
+    return view('user.login');
+})->name('user.login');
+
+Route::get('/user/register', function () {
+    return view('user.register');
+})->name('user.register');
+
+Route::get('/user/introduction', function () {
+    return view('user.introduction');
+})->name('user.introduction');
+
+Route::get('/user/booking', function () {
+    return view('user.booking');
+})->name('user.booking');
+
+Route::get('/user/service', function () {
+    return view('user.service');
+})->name('user.service');
+
+Route::get('/information', function () {
+    return view('user.information');
+})->name('user.information');
+
+Route::get('/information', [UserBookingController::class, 'create'])
+    ->name('user.information.form');
+
+Route::post('/information', [UserBookingController::class, 'store'])
+    ->name('user.information');
+
+Route::get('/login', function () {
+    return view('user.login');
+})->name('user.login');
+
+
+
+// ------------------
 // Admin Authentication Routes
 // ------------------
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AuthController::class, 'login'])->name('admin.login.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
-
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('admin.register');
     Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('admin.password.request');
 
@@ -129,46 +202,7 @@ Route::post('logout', function (Request $request) {
 })->name('logout');
 
 // ------------------
-// Doctor Pages (unchanged)
-// ------------------
-Route::get('/doctor/login', function () {
-    return view('doctor.login');
-})->name('doctor.login');
-
-Route::get('/doctor/register', function () {
-    return view('doctor.register');
-})->name('doctor.register');
-
-Route::get('/doctor/forgot-password', function () {
-    return view('doctor.forgot-password');
-})->name('doctor.forgot-password');
-
-Route::get('/doctor/dashboard', function () {
-    return view('doctor.dashboard');
-})->name('doctor.dashboard');
-
-Route::get('/doctor/appointments', function () {
-    return view('doctor.appointments');
-})->name('doctor.appointments');
-
-Route::get('/doctor/availability', function () {
-    return view('doctor.availability');
-})->name('doctor.availability');
-
-Route::get('/doctor/profile', function () {
-    return view('doctor.profile');
-})->name('doctor.profile');
-
-Route::get('/doctor/notifications', function () {
-    return view('doctor.notifications');
-})->name('doctor.notifications');
-
-Route::get('/doctor/introduction', function () {
-    return view('doctor.introduction');
-})->name('doctor.introduction');
-
-// ------------------
-// User Pages
+// User Pages (unchanged)
 // ------------------
 Route::get('/user/login', function () {
     return view('user.login');
@@ -181,21 +215,6 @@ Route::get('/user/register', function () {
 Route::get('/user/introduction', function () {
     return view('user.introduction');
 })->name('user.introduction');
-
-Route::get('/user/booking', function () {
-    return view('user.booking');
-})->name('user.booking');
-
-Route::get('/user/service', function () {
-    return view('user.service');
-})->name('user.service');
-
-Route::get('/information', function () {
-    return view('user.information');
-})->name('user.information');
-
-Route::get('/information', [UserBookingController::class, 'create'])->name('user.information.form');
-Route::post('/information', [UserBookingController::class, 'store'])->name('user.information');
 
 // ------------------
 // Custom Registration & Login (unchanged)
@@ -212,7 +231,7 @@ Route::view('/dashboard', 'dashboard')
     ->name('admin.dashboard');
 
 // ------------------
-// Authenticated User Settings (Volt Components) (unchanged)
+// Authenticated User Settings (Volt Components)
 // ------------------
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
@@ -221,19 +240,20 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/password', 'settings.password')->name('password.edit');
     Volt::route('settings/appearance', 'settings.appearance')->name('appearance.edit');
 
-    Volt::route('settings/two-factor', 'settings.two-factor')
-        ->middleware(
-            when(
-                Features::canManageTwoFactorAuthentication()
-                    && Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword'),
-                ['password.confirm'],
-                [],
-            ),
+    Volt::route(
+        'settings/two-factor',
+        'settings.two-factor'
+    )->middleware(
+        when(
+            Features::canManageTwoFactorAuthentication() &&
+            Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword'),
+            ['password.confirm'],
+            [],
         )
-        ->name('two-factor.show');
+    )->name('two-factor.show');
 });
 
 // ------------------
 // Auth Scaffolding
 // ------------------
-require _DIR_ . '/auth.php';
+require __DIR__ . '/auth.php';

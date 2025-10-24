@@ -50,7 +50,9 @@
             </div>
 
             <!-- Form -->
-            <form class="px-8 py-6">
+            <form action="{{ route('doctor.register') }}" method="POST" class="px-8 py-6">
+                @csrf
+
                 <div class="space-y-5">
                     <!-- Name Field -->
                     <div class="relative">
@@ -59,10 +61,13 @@
                         </div>
                         <input 
                             type="text" 
+                            name="name"
+                            value="{{ old('name') }}"
                             placeholder="Full Name" 
                             class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-clinic-500 focus:outline-none transition"
                             required
                         >
+                        @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <!-- Email Field -->
@@ -71,11 +76,14 @@
                             <i data-feather="mail"></i>
                         </div>
                         <input 
-                            type="email" 
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
                             placeholder="Email Address" 
                             class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-clinic-500 focus:outline-none transition"
                             required
                         >
+                        @error('email')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <!-- Password Field -->
@@ -84,11 +92,13 @@
                             <i data-feather="lock"></i>
                         </div>
                         <input 
-                            type="password" 
+                            type="password"
+                            name="password"
                             placeholder="Password" 
                             class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-clinic-500 focus:outline-none transition"
                             required
                         >
+                        @error('password')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <!-- Confirm Password -->
@@ -97,7 +107,8 @@
                             <i data-feather="lock"></i>
                         </div>
                         <input 
-                            type="password" 
+                            type="password"
+                            name="password_confirmation"
                             placeholder="Confirm Password" 
                             class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-clinic-500 focus:outline-none transition"
                             required
@@ -109,6 +120,7 @@
                         <input 
                             type="checkbox" 
                             id="terms"
+                            name="terms"
                             class="rounded border-gray-300 text-clinic-500 focus:ring-clinic-500 mr-2"
                             required
                         >
