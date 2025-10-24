@@ -11,7 +11,6 @@ use App\Http\Controllers\Admin\SupportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserBookingController;
-use App\Http\Controllers\Doctor\DoctorRegisterController;
 
 // ------------------
 // Home Route
@@ -101,8 +100,9 @@ Route::get('/doctor/login', function () {
     return view('doctor.login');
 })->name('doctor.login');
 
-Route::get('/doctor/register', [DoctorRegisterController::class, 'create'])->name('doctor.register');
-Route::post('/doctor/register', [DoctorRegisterController::class, 'store']);
+Route::get('/doctor/register', function () {
+    return view('doctor.register');
+})->name('doctor.register');
 
 Route::get('/doctor/forgot-password', function () {
     return view('doctor.forgot-password');
