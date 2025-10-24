@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SupportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserBookingController;
+use App\Http\Controllers\Doctor\DoctorRegisterController;
 
 // ------------------
 // Home Route
@@ -127,6 +128,9 @@ Route::get('/doctor/profile', function () {
 Route::get('/doctor/notifications', function () {
     return view('doctor.notifications');
 })->name('doctor.notifications');
+
+Route::get('/doctor/register', [DoctorRegisterController::class, 'create'])->name('doctor.register');
+Route::post('/doctor/register', [DoctorRegisterController::class, 'store']);
 
 // ------------------
 // User Pages (unchanged)
