@@ -10,26 +10,26 @@ use Illuminate\Validation\Rules\Password;
 
 class DoctorRegisterController extends Controller
 {
-    public function create()
+    public function showRegisterForm()
     {
         return view('doctor.register');
     }
 
-    public function store(Request $request)
+    public function register(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:doctors,email',
-            'password' => ['required', 'confirmed', Password::min(8)],
+            'email' => 'required|email|unique:doctor_login,email',
+            'password' => 'required|confirmed|min:6',
             'terms' => 'accepted',
         ]);
 
         Doctor::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('doctor.login')->with('success', 'Account created. Please sign in.');
+        return redirect('/doctor/login')->with('success', 'Account created successfully! Please login.');
     }
 }

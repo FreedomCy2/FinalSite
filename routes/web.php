@@ -101,6 +101,11 @@ Route::get('/doctor/login', function () {
     return view('doctor.login');
 })->name('doctor.login');
 
+// Doctor authentication (POST login and logout)
+use App\Http\Controllers\Doctor\AuthController as DoctorAuthController;
+Route::post('/doctor/login', [DoctorAuthController::class, 'login'])->name('doctor.login.submit');
+Route::post('/doctor/logout', [DoctorAuthController::class, 'logout'])->name('doctor.logout');
+
 Route::get('/doctor/register', function () {
     return view('doctor.register');
 })->name('doctor.register');
@@ -129,8 +134,9 @@ Route::get('/doctor/notifications', function () {
     return view('doctor.notifications');
 })->name('doctor.notifications');
 
-Route::get('/doctor/register', [DoctorRegisterController::class, 'create'])->name('doctor.register');
-Route::post('/doctor/register', [DoctorRegisterController::class, 'store']);
+Route::get('/doctor/register', [DoctorRegisterController::class, 'showRegisterForm'])->name('doctor.showRegister');
+Route::post('/doctor/register', [DoctorRegisterController::class, 'register'])->name('doctor.register');
+
 
 // ------------------
 // User Pages (unchanged)

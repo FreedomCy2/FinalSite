@@ -47,20 +47,31 @@
                 <p class="text-gray-500 mt-2">Sign in to access your dashboard</p>
             </div>
             
-            <form>
+            <form action="{{ url('/doctor/login') }}" method="POST">
+                @csrf
+                @if($errors->any())
+                    <div class="mb-4">
+                        <p class="text-red-600 text-sm">{{ $errors->first() }}</p>
+                    </div>
+                @endif
+                @if(session('success'))
+                    <div class="mb-4">
+                        <p class="text-green-600 text-sm">{{ session('success') }}</p>
+                    </div>
+                @endif
                 <div class="mb-4">
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input type="email" id="email" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="doctor@example.com">
+                    <input type="email" name="email" id="email" value="{{ old('email') }}" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="doctor@example.com" required>
                 </div>
                 
                 <div class="mb-6">
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="password" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="••••••••">
+                    <input type="password" name="password" id="password" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="••••••••" required>
                 </div>
                 
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center">
-                        <input type="checkbox" id="remember" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
+                        <input type="checkbox" id="remember" name="remember" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
                         <label for="remember" class="ml-2 block text-sm text-gray-700">Remember me</label>
                     </div>
                     <a href="/doctor/forgot-password" class="text-sm text-emerald-600 hover:text-emerald-500">Forgot password?</a>
