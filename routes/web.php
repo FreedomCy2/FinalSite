@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\Auth\RegisterController;
@@ -8,10 +9,12 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\AdminForgotPasswordController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\SupportController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password;
 use App\Http\Controllers\UserBookingController;
 use App\Http\Controllers\Doctor\DoctorRegisterController;
+use App\Http\Controllers\Doctor\AuthController as DoctorAuthController;
+use App\Http\Controllers\Doctor\AppointmentController;
 
 // ------------------
 // Home Route
@@ -101,22 +104,28 @@ Route::get('/doctor/login', function () {
     return view('doctor.login');
 })->name('doctor.login');
 
-// Doctor authentication (POST login and logout)
-use App\Http\Controllers\Doctor\AuthController as DoctorAuthController;
-Route::post('/doctor/login', [DoctorAuthController::class, 'login'])->name('doctor.login.submit');
-Route::post('/doctor/logout', [DoctorAuthController::class, 'logout'])->name('doctor.logout');
-
 Route::get('/doctor/register', function () {
     return view('doctor.register');
 })->name('doctor.register');
 
+// Doctor authentication (POST login and logout)
+
+Route::post('/doctor/login', [DoctorAuthController::class, 'login'])->name('doctor.login.submit');
+Route::post('/doctor/logout', [DoctorAuthController::class, 'logout'])->name('doctor.logout');
+
+
+Route::prefix('doctor')->name('doctor.')->group(function () {
+    Route::get('dashboard', function () {
+        if (!Auth::check()) {
+            return redirect()->route('doctor.login');
+        }
+        return view('doctor.dashboard');
+    })->name('dashboard');
+});
+
 Route::get('/doctor/forgot-password', function () {
     return view('doctor.forgot-password');
 })->name('doctor.forgot-password');
-
-Route::get('/doctor/dashboard', function () {
-    return view('doctor.dashboard');
-})->name('doctor.dashboard');
 
 Route::get('/doctor/appointments', function () {
     return view('doctor.appointments');
@@ -134,8 +143,35 @@ Route::get('/doctor/notifications', function () {
     return view('doctor.notifications');
 })->name('doctor.notifications');
 
+Route::get('/doctor/appointments', [AppointmentController::class, 'index'])
+    ->name('doctor.appointments.index');
+
+Route::patch('/doctor/appointments/{appointment}/update-status', [AppointmentController::class, 'updateStatus'])
+    ->name('doctor.appointments.updateStatus');    
+
 Route::get('/doctor/register', [DoctorRegisterController::class, 'showRegisterForm'])->name('doctor.showRegister');
 Route::post('/doctor/register', [DoctorRegisterController::class, 'register'])->name('doctor.register');
+
+
+/// ------------------
+// Doctor Forgot-Password
+// ------------------
+
+Route::get('doctor/forgot-password', function () {
+    return view('doctor.forgot-password');
+})->name('password.request');
+
+Route::post('doctor/forgot-password', function (Request $request) {
+    $request->validate(['email' => 'required|email']);
+
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
+
+    return $status === Password::RESET_LINK_SENT
+                ? back()->with(['status' => __($status)])
+                : back()->withErrors(['email' => __($status)]);
+})->name('password.email');
 
 
 // ------------------

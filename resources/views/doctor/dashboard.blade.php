@@ -100,7 +100,7 @@
                         <p class="text-xs text-gray-500">Cardiologist</p>
                     </div>
                 </div>
-                <button class="w-full mt-4 flex items-center justify-center space-x-2 text-gray-600 hover:text-gray-800 py-2 rounded-lg hover:bg-gray-100">
+                <button id="sidebar-logout-button" type="button" class="w-full mt-4 flex items-center justify-center space-x-2 text-gray-600 hover:text-gray-800 py-2 rounded-lg hover:bg-gray-100">
                     <i data-feather="log-out" class="w-4 h-4"></i>
                     <span>Logout</span>
                 </button>
@@ -215,8 +215,52 @@
         </div>
     </div>
 
+</main>
+        <!-- Logout Confirmation Modal -->
+        <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <div class="flex items-center mb-4">
+                    <h3 class="text-lg font-semibold">Confirm Logout</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Are you sure you want to logout?</p>
+                <div class="flex justify-end space-x-3">
+                    <button id="cancel-logout" type="button" class="px-4 py-2 rounded bg-gray-200">Cancel</button>
+                    <button id="confirm-logout" type="button" class="px-4 py-2 rounded bg-red-500 text-white">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden logout form actually submitted to server -->
+        <form id="logout-form" method="POST" action="{{ route('doctor.logout') }}" class="hidden">
+            @csrf
+        </form>
+
     <script>
+        // Replace icons
         feather.replace();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutButton = document.getElementById('sidebar-logout-button');
+            const logoutForm = document.getElementById('logout-form');
+            const logoutModal = document.getElementById('logout-modal');
+            const cancelLogout = document.getElementById('cancel-logout');
+            const confirmLogout = document.getElementById('confirm-logout');
+
+            // open modal when user clicks logout in the sidebar
+            logoutButton && logoutButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutModal.classList.remove('hidden');
+            });
+
+            cancelLogout && cancelLogout.addEventListener('click', function() {
+                logoutModal.classList.add('hidden');
+            });
+
+            // on confirm, submit the hidden POST logout form (includes CSRF)
+            confirmLogout && confirmLogout.addEventListener('click', function() {
+                logoutForm.submit();
+            });
+        });
     </script>
 </body>
 </html>

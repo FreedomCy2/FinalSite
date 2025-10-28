@@ -217,57 +217,63 @@
                         <h4 class="text-lg font-medium text-gray-800 mb-4">Today's Appointments</h4>
                         
                         <div class="space-y-4">
+                          @if(session('status'))
+                            <div class="p-3 bg-green-50 text-clinic-500 rounded">{{ session('status') }}</div>
+                          @endif
+      
+                          @forelse($bookings as $booking)
                             <div class="appointment-card bg-white border border-gray-200 rounded-lg p-4">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="w-12 h-12 bg-clinic-100 rounded-full flex items-center justify-center">
-                                            <i data-feather="user" class="w-5 h-5 text-clinic-500"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-800">Michael Chen</p>
-                                            <p class="text-sm text-gray-500">Regular Checkup</p>
-                                            <div class="flex items-center mt-1 space-x-2">
-                                                <i data-feather="phone" class="w-4 h-4 text-gray-500"></i>
-                                                <p class="text-sm text-gray-500">(555) 123-4567</p>
-                                            </div>
-                                        </div>
+                              <div class="flex justify-between items-start">
+                                <div class="flex items-center space-x-4">
+                                  <div class="w-12 h-12 bg-clinic-100 rounded-full flex items-center justify-center">
+                                    <i data-feather="user" class="w-5 h-5 text-clinic-500"></i>
+                                  </div>
+                                  <div>
+                                    <p class="font-medium text-gray-800">{{ $booking->patient_name }}</p>
+                                    <p class="text-sm text-gray-500">{{ $booking->doctor_name }} — {{ $booking->status ?? 'pending' }}</p>
+                                    <div class="flex items-center mt-1 space-x-2">
+                                      <i data-feather="calendar" class="w-4 h-4 text-gray-500"></i>
+                                      <p class="text-sm text-gray-500">
+                                        {{ optional($booking->appointment_date)->format('M d, Y') }}
+                                        @if($booking->appointment_time)
+                                          at {{ optional($booking->appointment_time)->format('h:i A') }}
+                                        @endif
+                                      </p>
                                     </div>
-                                    <div class="text-right">
-                                        <p class="font-medium text-gray-800">10:30 AM</p>
-                                        <p class="text-sm text-gray-500">45 minutes</p>
-                                        <div class="flex space-x-2 mt-2">
-                                            <button class="px-3 py-1 bg-clinic-500 text-white rounded-lg text-sm">Completed</button>
-                                            <button class="px-3 py-1 bg-red-500 text-white rounded-lg text-sm">No-show</button>
-                                        </div>
-                                    </div>
+                                  </div>
                                 </div>
-                            </div>
-                            
-                            <div class="appointment-card bg-white border border-gray-200 rounded-lg p-4">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="w-12 h-12 bg-clinic-100 rounded-full flex items-center justify-center">
-                                            <i data-feather="user" class="w-5 h-5 text-clinic-500"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-800">Jennifer Lopez</p>
-                                            <p class="text-sm text-gray-500">Cardiac Consultation</p>
-                                            <div class="flex items-center mt-1 space-x-2">
-                                                <i data-feather="phone" class="w-4 h-4 text-gray-500"></i>
-                                                <p class="text-sm text-gray-500">(555) 987-6543</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-medium text-gray-800">2:15 PM</p>
-                                        <p class="text-sm text-gray-500">60 minutes</p>
-                                        <div class="flex space-x-2 mt-2">
-                                            <button class="px-3 py-1 bg-clinic-500 text-white rounded-lg text-sm">Completed</button>
-                                            <button class="px-3 py-1 bg-red-500 text-white rounded-lg text-sm">No-show</button>
-                                        </div>
-                                    </div>
+      
+                                <div class="text-right">
+                                  <p class="font-medium text-gray-800">
+                                    {{ optional($booking->appointment_time)->format('h:i A') ?: optional($booking->appointment_date)->format('h:i A') }}
+                                  </p>
+                                  <p class="text-sm text-gray-500">Duration: 30 minutes</p>
+      
+                                  <div class="flex space-x-2 mt-2">
+                                    @if($booking->status !== 'accepted')
+                                      <form method="POST" action="{{ route('doctor.appointments.updateStatus', $booking) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="accepted">
+                                        <button type="submit" class="px-3 py-1 bg-clinic-500 text-white rounded-lg text-sm">Accept</button>
+                                      </form>
+                                    @endif
+      
+                                    @if($booking->status !== 'declined')
+                                      <form method="POST" action="{{ route('doctor.appointments.updateStatus', $booking) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="declined">
+                                        <button type="submit" class="px-3 py-1 bg-red-500 text-white rounded-lg text-sm">Decline</button>
+                                      </form>
+                                    @endif
+                                  </div>
                                 </div>
+                              </div>
                             </div>
+                          @empty
+                            <p class="text-sm text-gray-500">No bookings found.</p>
+                          @endforelse
                         </div>
                     </div>
                 </div>

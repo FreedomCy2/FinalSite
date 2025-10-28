@@ -12,7 +12,8 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: #ffffff; /* changed to white */
+            /* light-blue background to match design */
+            background: #e8faff;
             min-height: 100vh;
             display: flex;
             align-items: center;

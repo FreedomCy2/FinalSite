@@ -42,7 +42,7 @@
     }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+<body class="bg-[#e8faff] min-h-screen flex items-center justify-center p-4">
   <div class="max-w-md w-full bg-white rounded-xl shadow-lg overflow-hidden">
     <!-- Header -->
     <div class="bg-aqua py-6 px-8 text-center">

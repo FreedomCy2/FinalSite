@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Doctor;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -25,7 +26,10 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Invalid credentials'])->withInput();
         }
 
-        // store doctor id in session to mark as logged-in for doctor area
+        // log doctor in using the framework auth so Auth::check() works
+        Auth::login($doctor);
+
+        // also store an explicit doctor_id in session (kept for compatibility)
         $request->session()->put('doctor_id', $doctor->id);
 
         return redirect()->route('doctor.dashboard');
@@ -36,7 +40,10 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        // log out via the framework auth and clear session data
+        Auth::logout();
         $request->session()->forget('doctor_id');
+        $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('doctor.login');
     }
