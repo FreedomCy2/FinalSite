@@ -81,7 +81,12 @@ class BookingController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $booking = Booking::find($id);
+        if (! $booking) {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
+
+        return response()->json(['data' => $booking], 200);
     }
 
     /**
@@ -97,7 +102,43 @@ class BookingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $booking = Booking::find($id);
+        if (! $booking) {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'patient_name' => 'required|string|max:255',
+            'doctor_name' => 'required|string|max:255',
+            'appointment_date' => 'required|date',
+            'appointment_time' => 'required',
+            'status' => 'required|string|in:pending,confirmed,cancelled,completed',
+        ]);
+
+        try {
+            $date = Carbon::parse($validated['appointment_date'])->toDateString();
+            $timeInput = $validated['appointment_time'];
+
+            if (str_contains($timeInput, 'T') || str_contains($timeInput, '-')) {
+                $appointmentTime = Carbon::parse($timeInput);
+            } else {
+                $appointmentTime = Carbon::createFromFormat('Y-m-d H:i', $date.' '.substr($timeInput,0,5));
+            }
+
+            $appointmentDate = Carbon::parse($date)->startOfDay();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid date/time format.'], 422);
+        }
+
+        $booking->update([
+            'patient_name' => $validated['patient_name'],
+            'doctor_name' => $validated['doctor_name'],
+            'appointment_date' => $appointmentDate->toDateTimeString(),
+            'appointment_time' => $appointmentTime->toDateTimeString(),
+            'status' => $validated['status'],
+        ]);
+
+        return response()->json(['message' => 'Booking updated', 'data' => $booking], 200);
     }
 
     /**
