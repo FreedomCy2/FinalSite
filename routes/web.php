@@ -42,28 +42,30 @@ Route::prefix('admin')->name('admin.')->group(function () {
         if (!Auth::check()) {
             return view('admin.login');
         }
-        return view('admin.dashboard');
-    })->name('dashboard');
+        })->name('dashboard');
 
     Route::get('booking', function () {
         if (!Auth::check()) {
             return view('admin.login');
         }
-        return view('admin.booking');
+        // Call the BookingController so the view receives $bookings
+        return app(\App\Http\Controllers\Admin\BookingController::class)->index();
     })->name('booking');
 
     Route::get('doctors', function () {
         if (!Auth::check()) {
             return view('admin.login');
         }
-        return view('admin.doctors');
+        // Call the DoctorController so the view receives $doctors
+        return app(\App\Http\Controllers\Admin\DoctorController::class)->index();
     })->name('doctors');
 
     Route::get('manage-users', function () {
         if (!Auth::check()) {
             return view('admin.login');
         }
-        return view('admin.manage-users');
+        // Use the admin UserController so the view receives $users
+        return app(\App\Http\Controllers\Admin\UserController::class)->index();
     })->name('manage-users');
 
     Route::get('reminders', function () {
@@ -84,6 +86,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         if (!Auth::check()) {
             return view('admin.login');
         }
+        return app(\App\Http\Controllers\Admin\RecordsController::class)->index();
         return view('admin.records');
     })->name('records');
 
@@ -227,6 +230,24 @@ Route::prefix('admin')->group(function () {
     Route::get('/bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('admin.bookings.index');
     Route::post('/bookings', [\App\Http\Controllers\Admin\BookingController::class, 'store'])->name('admin.bookings.store');
     Route::delete('/bookings/{id}', [\App\Http\Controllers\Admin\BookingController::class, 'destroy'])->name('admin.bookings.destroy');
+    Route::get('/bookings/{id}', [\App\Http\Controllers\Admin\BookingController::class, 'show'])->name('admin.bookings.show');
+    Route::put('/bookings/{id}', [\App\Http\Controllers\Admin\BookingController::class, 'update'])->name('admin.bookings.update');
+    // Doctors CRUD endpoints (AJAX)
+    Route::post('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'store'])->name('admin.doctors.store');
+    Route::get('/doctors/{id}', [\App\Http\Controllers\Admin\DoctorController::class, 'show'])->name('admin.doctors.show');
+    Route::put('/doctors/{id}', [\App\Http\Controllers\Admin\DoctorController::class, 'update'])->name('admin.doctors.update');
+    Route::delete('/doctors/{id}', [\App\Http\Controllers\Admin\DoctorController::class, 'destroy'])->name('admin.doctors.destroy');
+    // Users CRUD endpoints (AJAX)
+    Route::post('/users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('admin.users.store');
+    Route::get('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('admin.users.show');
+    Route::put('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
+    // Records CRUD endpoints (AJAX)
+    Route::get('/records', [\App\Http\Controllers\Admin\RecordsController::class, 'index'])->name('admin.records.index');
+    Route::post('/records', [\App\Http\Controllers\Admin\RecordsController::class, 'store'])->name('admin.records.store');
+    Route::get('/records/{id}', [\App\Http\Controllers\Admin\RecordsController::class, 'show'])->name('admin.records.show');
+    Route::put('/records/{id}', [\App\Http\Controllers\Admin\RecordsController::class, 'update'])->name('admin.records.update');
+    Route::delete('/records/{id}', [\App\Http\Controllers\Admin\RecordsController::class, 'destroy'])->name('admin.records.destroy');
 });
 
 // ------------------

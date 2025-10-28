@@ -4,8 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-// Legacy/backup model left by a previous contributor. Renamed to avoid class name collision.
-class DoctorBackup extends Model
+class DoctorProfile extends Model
 {
     protected $table = 'doctors';
 
@@ -16,4 +15,10 @@ class DoctorBackup extends Model
         'doctor_phone',
         'doctor_status',
     ];
+
+    // Provide a convenient `status` attribute for views that expect `$doctor->status`
+    public function getStatusAttribute()
+    {
+        return $this->doctor_status;
+    }
 }
