@@ -1,38 +1,24 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Models;
 
-use Illuminate\Http\Request;
-use App\Models\UserBooking;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class UserBookingController extends Controller
+class Booking extends Model
 {
-    // Show the booking form
-    public function create()
-    {
-        return view('user.information'); // your Blade file
-    }
+    use HasFactory;
 
-    // Handle form submission
-    public function store(Request $request)
-    {
-        // Validate input
-        $validated = $request->validate([
-            'service' => 'required|string',
-            'date' => 'required|date',
-            'time' => 'required',
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
-            'age' => 'required|integer|min:0|max:120',
-            'gender' => 'required|string',
-            'symptom' => 'nullable|string',
-        ]);
+    protected $fillable = [
+        'patient_name',
+        'doctor_name',
+        'appointment_date',
+        'appointment_time',
+        'status',
+    ];
 
-        // Store in database
-        UserBooking::create($validated);
-
-        // Redirect somewhere after submission
-        return redirect()->route('user.login')->with('success', 'Booking successfully created!');
-    }
+    protected $casts = [
+        'appointment_date' => 'datetime',
+        'appointment_time' => 'datetime',
+    ];
 }
