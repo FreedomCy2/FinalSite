@@ -42,7 +42,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         if (!Auth::check()) {
             return view('admin.login');
         }
-        })->name('dashboard');
+        return view('admin.dashboard');
+    })->name('dashboard');
 
     Route::get('booking', function () {
         if (!Auth::check()) {
@@ -290,12 +291,7 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/login', [RegisterController::class, 'showLoginForm'])->name('login');
 
-// ------------------
-// Dashboard Views (unchanged)
-// ------------------
-Route::view('/dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('admin.dashboard');
+// NOTE: admin dashboard route is handled in the admin prefix group above.
 
 // ------------------
 // Authenticated User Settings (Volt Components)
