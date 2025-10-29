@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Doctor;
+use App\Models\DoctorProfile;
+use Illuminate\Http\Response;
 
 class DoctorController extends Controller
 {
@@ -13,8 +14,8 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        $doctors = Doctor::all();
-        return view('admin.doctors')->compact('doctors', $doctors);
+        $doctors = DoctorProfile::orderBy('doctor_name')->get();
+        return view('admin.doctors', compact('doctors'));
     }
 
     /**
@@ -22,7 +23,8 @@ class DoctorController extends Controller
      */
     public function create()
     {
-        return view('admin.doctors');
+        // return view with empty form/modal; list view handles modal so redirect to index
+        return redirect()->route('admin.doctors.index');
     }
 
     /**
@@ -30,7 +32,17 @@ class DoctorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'doctor_name' => 'required|string|max:255',
+            'specialization' => 'nullable|string|max:255',
+            'doctor_email' => 'required|email|max:255|unique:doctors,doctor_email',
+            'doctor_phone' => 'nullable|string|max:50|unique:doctors,doctor_phone',
+            'doctor_status' => 'required|string|max:50',
+        ]);
+
+        $doctor = DoctorProfile::create($data);
+
+        return response()->json(['message' => 'Doctor created', 'data' => $doctor], Response::HTTP_CREATED);
     }
 
     /**
@@ -38,7 +50,8 @@ class DoctorController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $doctor = DoctorProfile::findOrFail($id);
+        return response()->json(['data' => $doctor]);
     }
 
     /**
@@ -46,7 +59,8 @@ class DoctorController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // editing handled via AJAX/modal on index page
+        return redirect()->route('admin.doctors.index');
     }
 
     /**
@@ -54,7 +68,17 @@ class DoctorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $doctor = DoctorProfile::findOrFail($id);
+        $data = $request->validate([
+            'doctor_name' => 'required|string|max:255',
+            'specialization' => 'nullable|string|max:255',
+            'doctor_email' => ['required','email','max:255', \Illuminate\Validation\Rule::unique('doctors','doctor_email')->ignore($doctor->id)],
+            'doctor_phone' => ['nullable','string','max:50', \Illuminate\Validation\Rule::unique('doctors','doctor_phone')->ignore($doctor->id)],
+            'doctor_status' => 'required|string|max:50',
+        ]);
+
+        $doctor->update($data);
+        return response()->json(['message' => 'Doctor updated', 'data' => $doctor]);
     }
 
     /**
@@ -62,6 +86,8 @@ class DoctorController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $doctor = DoctorProfile::findOrFail($id);
+        $doctor->delete();
+        return response()->json(['message' => 'Doctor deleted']);
     }
 }
