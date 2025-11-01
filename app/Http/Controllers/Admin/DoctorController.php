@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\DoctorProfile;
+use App\Models\Doctor;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Database\QueryException;
 
 class DoctorController extends Controller
 {
@@ -14,7 +17,7 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        $doctors = DoctorProfile::orderBy('doctor_name')->get();
+        $doctors = Doctor::orderBy('name')->get();
         return view('admin.doctors', compact('doctors'));
     }
 
@@ -23,7 +26,7 @@ class DoctorController extends Controller
      */
     public function create()
     {
-        // return view with empty form/modal; list view handles modal so redirect to index
+        // modal handled in index view
         return redirect()->route('admin.doctors.index');
     }
 
@@ -32,17 +35,37 @@ class DoctorController extends Controller
      */
     public function store(Request $request)
     {
+        $doctorTable = (new Doctor())->getTable();
+
         $data = $request->validate([
-            'doctor_name' => 'required|string|max:255',
-            'specialization' => 'nullable|string|max:255',
-            'doctor_email' => 'required|email|max:255|unique:doctors,doctor_email',
-            'doctor_phone' => 'nullable|string|max:50|unique:doctors,doctor_phone',
-            'doctor_status' => 'required|string|max:50',
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique($doctorTable, 'email'),
+            ],
+            'password' => 'nullable|string|min:6',
         ]);
 
-        $doctor = DoctorProfile::create($data);
+        // Defensive check in case of race or duplicate attempt
+        if (Doctor::where('email', $data['email'])->exists()) {
+            return response()->json(['message' => 'A doctor with that email already exists.'], 422);
+        }
 
-        return response()->json(['message' => 'Doctor created', 'data' => $doctor], Response::HTTP_CREATED);
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        try {
+            $doctor = Doctor::create($data);
+            return response()->json(['message' => 'Doctor created', 'data' => $doctor], Response::HTTP_CREATED);
+        } catch (QueryException $e) {
+            // Handle possible duplicate key race condition
+            return response()->json(['message' => 'Email already in use'], 409);
+        }
     }
 
     /**
@@ -50,7 +73,7 @@ class DoctorController extends Controller
      */
     public function show(string $id)
     {
-        $doctor = DoctorProfile::findOrFail($id);
+        $doctor = Doctor::findOrFail($id);
         return response()->json(['data' => $doctor]);
     }
 
@@ -68,16 +91,29 @@ class DoctorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $doctor = DoctorProfile::findOrFail($id);
+        $doctor = Doctor::findOrFail($id);
+
+        $doctorTable = (new Doctor())->getTable();
+
         $data = $request->validate([
-            'doctor_name' => 'required|string|max:255',
-            'specialization' => 'nullable|string|max:255',
-            'doctor_email' => ['required','email','max:255', \Illuminate\Validation\Rule::unique('doctors','doctor_email')->ignore($doctor->id)],
-            'doctor_phone' => ['nullable','string','max:50', \Illuminate\Validation\Rule::unique('doctors','doctor_phone')->ignore($doctor->id)],
-            'doctor_status' => 'required|string|max:50',
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique($doctorTable, 'email')->ignore($doctor->id),
+            ],
+            'password' => 'nullable|string|min:6',
         ]);
 
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
         $doctor->update($data);
+
         return response()->json(['message' => 'Doctor updated', 'data' => $doctor]);
     }
 
@@ -86,7 +122,7 @@ class DoctorController extends Controller
      */
     public function destroy(string $id)
     {
-        $doctor = DoctorProfile::findOrFail($id);
+        $doctor = Doctor::findOrFail($id);
         $doctor->delete();
         return response()->json(['message' => 'Doctor deleted']);
     }

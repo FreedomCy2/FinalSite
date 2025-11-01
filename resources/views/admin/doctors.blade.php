@@ -15,10 +15,8 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialization</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -26,15 +24,9 @@
                 <tbody id="doctor-rows" class="bg-white divide-y divide-gray-200">
                     @forelse($doctors as $doctor)
                         <tr data-id="{{ $doctor->id }}">
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $doctor->doctor_name }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $doctor->specialization }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $doctor->doctor_email }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $doctor->doctor_phone }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $doctor->status == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    {{ ucfirst($doctor->status) }}
-                                </span>
-                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $doctor->name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $doctor->email }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $doctor->created_at ? $doctor->created_at->format('d M, Y') : '' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <button class="edit-doctor text-[#68D6EC] mr-3" data-id="{{ $doctor->id }}">Edit</button>
                                 <button class="delete-doctor text-red-600" data-id="{{ $doctor->id }}">Delete</button>
@@ -66,26 +58,15 @@
                     <div class="grid grid-cols-1 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                            <input id="doctor_name" name="doctor_name" type="text" placeholder="Doctor name" class="w-full rounded-lg border border-gray-300 px-3 py-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
-                            <input id="specialization" name="specialization" type="text" placeholder="Specialization" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                            <input id="name" name="name" type="text" placeholder="Full name" class="w-full rounded-lg border border-gray-300 px-3 py-2">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input id="doctor_email" name="doctor_email" type="email" placeholder="Email" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                            <input id="email" name="email" type="email" placeholder="Email" class="w-full rounded-lg border border-gray-300 px-3 py-2">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                            <input id="doctor_phone" name="doctor_phone" type="text" placeholder="Phone" class="w-full rounded-lg border border-gray-300 px-3 py-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <select id="doctor_status" name="doctor_status" class="w-full rounded-lg border border-gray-300 px-3 py-2">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input id="password" name="password" type="password" placeholder="Password (leave blank to keep)" class="w-full rounded-lg border border-gray-300 px-3 py-2">
                         </div>
                     </div>
                     <div class="flex justify-end mt-6 space-x-3">
@@ -127,13 +108,11 @@
                         const res = await fetch(`/admin/doctors/${id}`, { headers: { 'Accept': 'application/json' } });
                         if (!res.ok) throw res;
                         const json = await res.json();
-                        const d = json.data;
-                        document.getElementById('doctor_id').value = d.id;
-                        document.getElementById('doctor_name').value = d.doctor_name || '';
-                        document.getElementById('specialization').value = d.specialization || '';
-                        document.getElementById('doctor_email').value = d.doctor_email || '';
-                        document.getElementById('doctor_phone').value = d.doctor_phone || '';
-                        document.getElementById('doctor_status').value = d.doctor_status || 'active';
+                        const d = json.data || {};
+                        document.getElementById('doctor_id').value = d.id || '';
+                        document.getElementById('name').value = d.name || '';
+                        document.getElementById('email').value = d.email || '';
+                        document.getElementById('password').value = '';
                         openModal('Edit Doctor');
                     } catch(e){ alert('Failed to load doctor'); }
                 };
@@ -166,12 +145,11 @@
             e.preventDefault();
             const id = document.getElementById('doctor_id').value;
             const payload = {
-                doctor_name: document.getElementById('doctor_name').value,
-                specialization: document.getElementById('specialization').value,
-                doctor_email: document.getElementById('doctor_email').value,
-                doctor_phone: document.getElementById('doctor_phone').value,
-                doctor_status: document.getElementById('doctor_status').value,
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
             };
+            const pw = document.getElementById('password').value;
+            if (pw) payload.password = pw;
             const url = id ? `/admin/doctors/${id}` : '/admin/doctors';
             const method = id ? 'PUT' : 'POST';
             fetch(url, { method: method, headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), 'Accept': 'application/json' }, body: JSON.stringify(payload) })
