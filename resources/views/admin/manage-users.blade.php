@@ -1,12 +1,12 @@
 @extends('admin.layout')
 
-@section('title','Manage Users')
-@section('header','Manage Users')
+@section('title','Users')
+@section('header','Users')
 
 @section('content')
     <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Users</h3>
+            <h3 class="text-lg font-semibold">User</h3>
             <button id="addUserBtn" class="bg-[#68D6EC] text-white px-4 py-2 rounded">Add User</button>
         </div>
 
@@ -16,7 +16,8 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -25,7 +26,11 @@
                         <tr data-id="{{ $user->id }}">
                             <td class="px-6 py-4 whitespace-nowrap">{{ $user->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $user->role ?? 'User' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $user->service }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ 
+                                
+                                ($user->date) ? \Carbon\Carbon::parse($user->date)->format('d M, Y') : ''
+                            }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <button data-id="{{ $user->id }}" class="edit-user text-[#68D6EC] mr-3">Edit</button>
                                 <button data-id="{{ $user->id }}" class="delete-user text-red-600">Delete</button>
@@ -33,7 +38,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No users found.</td>
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No user found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -54,6 +59,20 @@
                     <input type="hidden" id="user_id" />
                     <div class="grid grid-cols-1 gap-4">
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Service</label>
+                            <input id="service" name="service" type="text" placeholder="Service" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                <input id="date" name="date" type="date" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                                <input id="time" name="time" type="time" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                            </div>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
                             <input id="user_name" name="name" type="text" placeholder="Name" class="w-full rounded-lg border border-gray-300 px-3 py-2">
                         </div>
@@ -61,13 +80,23 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                             <input id="user_email" name="email" type="email" placeholder="Email" class="w-full rounded-lg border border-gray-300 px-3 py-2">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Password (leave blank to keep)</label>
-                            <input id="user_password" name="password" type="password" placeholder="Password" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                <input id="phone" name="phone" type="text" placeholder="Phone" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                                <input id="age" name="age" type="number" placeholder="Age" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                                <input id="gender" name="gender" type="text" placeholder="Gender" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                            </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                            <input id="user_role" name="role" type="text" placeholder="Role" class="w-full rounded-lg border border-gray-300 px-3 py-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Symptom / Notes</label>
+                            <textarea id="symptom" name="symptom" class="w-full rounded-lg border border-gray-300 px-3 py-2" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="flex justify-end mt-6 space-x-3">
@@ -110,11 +139,17 @@
                         const json = await res.json();
                         const u = json.data;
                         document.getElementById('user_id').value = u.id;
+                        document.getElementById('service').value = u.service || '';
+                        document.getElementById('date').value = u.date || '';
+                        document.getElementById('time').value = u.time || '';
                         document.getElementById('user_name').value = u.name || '';
                         document.getElementById('user_email').value = u.email || '';
-                        document.getElementById('user_role').value = u.role || '';
-                        openModal('Edit User');
-                    } catch(e){ alert('Failed to load user'); }
+                        document.getElementById('phone').value = u.phone || '';
+                        document.getElementById('age').value = u.age || '';
+                        document.getElementById('gender').value = u.gender || '';
+                        document.getElementById('symptom').value = u.symptom || '';
+                        openModal('Edit Booking');
+                    } catch(e){ alert('Failed to load booking'); }
                 };
                 btn.addEventListener('click', btn._editHandler);
             });
@@ -143,10 +178,15 @@
             e.preventDefault();
             const id = document.getElementById('user_id').value;
             const payload = {
+                service: document.getElementById('service').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
                 name: document.getElementById('user_name').value,
                 email: document.getElementById('user_email').value,
-                password: document.getElementById('user_password').value,
-                role: document.getElementById('user_role').value,
+                phone: document.getElementById('phone').value,
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                symptom: document.getElementById('symptom').value,
             };
             const url = id ? `/admin/users/${id}` : '/admin/users';
             const method = id ? 'PUT' : 'POST';

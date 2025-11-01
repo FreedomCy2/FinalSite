@@ -5,67 +5,65 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Models\User;
+use App\Models\UserBooking;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('name')->get();
+        $users = UserBooking::orderBy('name')->get();
         return view('admin.manage-users', compact('users'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
+            'service' => 'required|string|max:255',
+            'date' => 'required|date',
+            'time' => 'required|string|max:50',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'nullable|string|min:6',
-            'role' => 'nullable|string|max:50',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:50',
+            'age' => 'nullable|integer|min:0',
+            'gender' => 'nullable|string|max:20',
+            'symptom' => 'nullable|string',
         ]);
 
-        if (!empty($data['password'])) {
-            $data['password'] = bcrypt($data['password']);
-        } else {
-            unset($data['password']);
-        }
-
-        $user = User::create($data);
-        return response()->json(['message' => 'User created', 'data' => $user], Response::HTTP_CREATED);
+        $booking = UserBooking::create($data);
+        return response()->json(['message' => 'Booking created', 'data' => $booking], Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
-        $user = User::findOrFail($id);
+        $user = UserBooking::findOrFail($id);
         return response()->json(['data' => $user]);
     }
 
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $user = UserBooking::findOrFail($id);
 
         $data = $request->validate([
+            'service' => 'required|string|max:255',
+            'date' => 'required|date',
+            'time' => 'required|string|max:50',
             'name' => 'required|string|max:255',
-            'email' => ['required','email','max:255', Rule::unique('users','email')->ignore($user->id)],
-            'password' => 'nullable|string|min:6',
-            'role' => 'nullable|string|max:50',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:50',
+            'age' => 'nullable|integer|min:0',
+            'gender' => 'nullable|string|max:20',
+            'symptom' => 'nullable|string',
         ]);
 
-        if (!empty($data['password'])) {
-            $data['password'] = bcrypt($data['password']);
-        } else {
-            unset($data['password']);
-        }
-
         $user->update($data);
-        return response()->json(['message' => 'User updated', 'data' => $user]);
+        return response()->json(['message' => 'Booking updated', 'data' => $user]);
     }
 
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
+        $user = UserBooking::findOrFail($id);
         $user->delete();
-        return response()->json(['message' => 'User deleted']);
+        return response()->json(['message' => 'Booking deleted']);
     }
 }
